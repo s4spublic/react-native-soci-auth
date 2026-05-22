@@ -247,7 +247,7 @@ const SocialButtonInner: React.FC<SocialButtonProps> = ({
   const labelStyle = useMemo<TextStyle>(() => ({
     fontSize,
     fontWeight: '500',
-    color: buttonTextColor ?? defaultLabelColor,
+    color: buttonTextColor || defaultLabelColor,
     lineHeight: fontSize * 1.2,
   }), [fontSize, buttonTextColor, defaultLabelColor]);
 

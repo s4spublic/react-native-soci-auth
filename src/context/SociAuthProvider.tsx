@@ -41,10 +41,12 @@ export function SociAuthProvider({ config, children }: SociAuthProviderProps) {
     return mergeConfig(config);
   }, [config]);
 
-  // Resolve theme tokens (deep merge against mode-aware defaults)
+  // Resolve theme tokens directly from raw consumer config so that
+  // mode-aware defaults (dark/light) are applied before any pre-merge
+  // against DEFAULT_THEME pollutes the color values.
   const resolvedTheme = useMemo(
-    () => resolveTokens(resolvedConfig.theme),
-    [resolvedConfig.theme],
+    () => resolveTokens(config.theme ?? {}),
+    [config.theme],
   );
 
   // Direct state setter for children to update provider states

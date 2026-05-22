@@ -123,7 +123,7 @@ const SociAuthComponentInner: React.FC<{ style?: ViewStyle }> = ({ style }) => {
           enableHoverFill={enableHoverFill}
           hoverFillColor={hoverFillColor}
           contentAlignment={contentAlignment}
-          buttonTextColor={buttonTextColor}
+          buttonTextColor={buttonTextColor || undefined}
           disabled={providers[provider.name]?.status === 'loading'}
         />,
       );
