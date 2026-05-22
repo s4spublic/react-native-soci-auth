@@ -1,0 +1,66 @@
+{
+  "name": "react-native-soci-auth",
+  "version": "0.1.0",
+  "description": "A premium, glassmorphism-styled social authentication UI library for React Native",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src/components",
+    "src/context",
+    "src/engine",
+    "src/hooks",
+    "src/icons",
+    "src/utils",
+    "src/defaults.ts",
+    "src/guards.ts",
+    "src/index.ts",
+    "src/types.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "jest",
+    "lint": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/s4spublic/react-soci-auth"
+  },
+  "homepage": "https://github.com/s4spublic/react-soci-auth#readme",
+  "author": "Sagar Varma <sagar.varma465@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.73.0",
+    "react-native-svg": "*",
+    "expo-web-browser": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/react": "~19.1.0",
+    "react-native-svg": "^15.11.2",
+    "expo-web-browser": "~14.0.2",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "expo": "~54.0.0"
+  },
+  "keywords": [
+    "react-native",
+    "social-auth",
+    "oauth",
+    "glassmorphism",
+    "google",
+    "apple",
+    "facebook",
+    "github",
+    "authentication",
+    "ui-library",
+    "social-login",
+    "react-native-component",
+    "expo"
+  ]
+}

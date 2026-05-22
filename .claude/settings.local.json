@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb devices *)",
+      "Bash(Test-Path *)",
+      "Bash(npx expo *)",
+      "Bash(adb logcat *)",
+      "Bash(adb shell *)",
+      "Bash(npm pack *)",
+      "Bash(npx tsc *)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(taskkill //F //IM node.exe)",
+      "PowerShell(taskkill *)"
+    ]
+  }
+}

@@ -1,0 +1,239 @@
+import { useState, useMemo, useCallback } from 'react';
+import { Platform } from 'react-native';
+import { makeRedirectUri } from 'expo-auth-session';
+import type {
+  ProviderName,
+  ButtonVariant,
+  ButtonShape,
+  IconPosition,
+  ButtonSize,
+  ThemeMode,
+  Alignment,
+  SociAuth_Config,
+  ThemeConfig,
+} from 'react-native-soci-auth';
+
+// ─── DemoState Interface ─────────────────────────────────────────
+export interface DemoState {
+  enabledProviders: Record<ProviderName, boolean>;
+  buttonVariant: ButtonVariant;
+  direction: 'horizontal' | 'vertical';
+  alignment: Alignment;
+  spacing: number;
+  showLabels: boolean;
+  showDividers: boolean;
+  showCard: boolean;
+  themeMode: ThemeMode;
+  buttonShape: ButtonShape;
+  iconPosition: IconPosition;
+  buttonSize: ButtonSize;
+  buttonSizeScale: number;
+  glassOpacity: number;
+  enable3DDepth: boolean;
+  enableHoverFill: boolean;
+  hoverFillColor: string;
+  cardTitle: string;
+  cardSubtitle: string;
+  providerLabels: Record<ProviderName, string>;
+  contentAlignment: Alignment;
+  cardTitleColor: string;
+  cardSubtitleColor: string;
+  buttonTextColor: string;
+}
+
+export interface UseDemoStateReturn {
+  state: DemoState;
+  config: SociAuth_Config;
+  setters: Record<string, (...args: any[]) => void>;
+  resetToDefaults: () => void;
+}
+
+// ─── Default State ───────────────────────────────────────────────
+const ALL_PROVIDERS: ProviderName[] = ['google', 'apple', 'facebook', 'github'];
+
+export const DEFAULT_DEMO_STATE: DemoState = {
+  enabledProviders: { google: true, apple: true, facebook: true, github: true },
+  buttonVariant: 'icon-plus-text',
+  direction: 'vertical',
+  alignment: 'center',
+  spacing: 12,
+  showLabels: true,
+  showDividers: false,
+  showCard: true,
+  themeMode: 'light',
+  buttonShape: 'rounded',
+  iconPosition: 'left',
+  buttonSize: 'medium',
+  buttonSizeScale: 1.0,
+  glassOpacity: 0.45,
+  enable3DDepth: false,
+  enableHoverFill: false,
+  hoverFillColor: '#6366f1',
+  cardTitle: 'Welcome Back',
+  cardSubtitle: 'Sign in to continue',
+  providerLabels: {
+    google: 'Sign in with Google',
+    apple: 'Sign in with Apple',
+    facebook: 'Sign in with Facebook',
+    github: 'Sign in with GitHub',
+  },
+  contentAlignment: 'center',
+  cardTitleColor: '',
+  cardSubtitleColor: '',
+  buttonTextColor: '',
+};
+
+// ─── Provider Credentials (from environment) ─────────────────────
+const CLIENT_IDS: Record<ProviderName, string> = {
+  google: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? 'demo-client-id',
+  apple: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID ?? 'demo-client-id',
+  facebook: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID ?? 'demo-client-id',
+  github: process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID ?? 'demo-client-id',
+};
+
+// Redirect URI — platform-specific:
+// Web: use window.location.origin (clean URL, easy to register with providers)
+// Native: use expo-auth-session's makeRedirectUri (handles Expo Go, dev builds)
+function getRedirectUri(): string {
+  if (process.env.EXPO_PUBLIC_REDIRECT_URI) {
+    return process.env.EXPO_PUBLIC_REDIRECT_URI;
+  }
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return makeRedirectUri({
+    scheme: 'react-native-soci-auth-demo',
+    path: 'callback',
+  });
+}
+
+const REDIRECT_URI: string = getRedirectUri();
+
+const DEFAULT_SCOPES: Record<ProviderName, string[]> = {
+  google: ['openid', 'email', 'profile'],
+  apple: ['name', 'email'],
+  facebook: ['email', 'public_profile'],
+  github: ['read:user', 'user:email'],
+};
+
+// ─── Helper: derive SociAuth_Config from DemoState ───────────────
+export function deriveConfig(state: DemoState): SociAuth_Config {
+  const providers = ALL_PROVIDERS
+    .filter((name) => state.enabledProviders[name])
+    .map((name) => ({
+      name,
+      clientId: CLIENT_IDS[name],
+      redirectUri: REDIRECT_URI,
+      scopes: DEFAULT_SCOPES[name],
+      label: state.providerLabels[name],
+    }));
+
+  return {
+    providers,
+    buttonVariant: state.buttonVariant,
+    buttonSizeScale: state.buttonSizeScale,
+    theme: {
+      mode: state.themeMode,
+      glass: {
+        opacity: state.glassOpacity,
+      } as ThemeConfig['glass'],
+      button: {
+        shape: state.buttonShape,
+        iconPosition: state.iconPosition,
+        size: state.buttonSize,
+      },
+    },
+    layout: {
+      alignment: state.alignment,
+      spacing: state.spacing,
+      showLabels: state.showLabels,
+      showDividers: state.showDividers,
+      direction: state.direction,
+    },
+    enable3DDepth: state.enable3DDepth,
+    enableHoverFill: state.enableHoverFill,
+    hoverFillColor: state.hoverFillColor,
+    showCard: state.showCard,
+    cardTitle: state.cardTitle,
+    cardSubtitle: state.cardSubtitle,
+    contentAlignment: state.contentAlignment,
+    cardTitleColor: state.cardTitleColor,
+    cardSubtitleColor: state.cardSubtitleColor,
+    buttonTextColor: state.buttonTextColor || undefined,
+  };
+}
+
+// ─── Hook ────────────────────────────────────────────────────────
+export function useDemoState(): UseDemoStateReturn {
+  const [state, setState] = useState<DemoState>(DEFAULT_DEMO_STATE);
+
+  const config = useMemo(() => deriveConfig(state), [state]);
+
+  const setters = useMemo<Record<string, (...args: any[]) => void>>(() => ({
+    setEnabledProviders: (value: Record<ProviderName, boolean>) =>
+      setState((prev) => ({ ...prev, enabledProviders: value })),
+    toggleProvider: (name: ProviderName) =>
+      setState((prev) => ({
+        ...prev,
+        enabledProviders: {
+          ...prev.enabledProviders,
+          [name]: !prev.enabledProviders[name],
+        },
+      })),
+    setButtonVariant: (value: ButtonVariant) =>
+      setState((prev) => ({ ...prev, buttonVariant: value })),
+    setDirection: (value: 'horizontal' | 'vertical') =>
+      setState((prev) => ({ ...prev, direction: value })),
+    setAlignment: (value: Alignment) =>
+      setState((prev) => ({ ...prev, alignment: value })),
+    setSpacing: (value: number) =>
+      setState((prev) => ({ ...prev, spacing: value })),
+    setShowLabels: (value: boolean) =>
+      setState((prev) => ({ ...prev, showLabels: value })),
+    setShowDividers: (value: boolean) =>
+      setState((prev) => ({ ...prev, showDividers: value })),
+    setThemeMode: (value: ThemeMode) =>
+      setState((prev) => ({ ...prev, themeMode: value })),
+    setButtonShape: (value: ButtonShape) =>
+      setState((prev) => ({ ...prev, buttonShape: value })),
+    setIconPosition: (value: IconPosition) =>
+      setState((prev) => ({ ...prev, iconPosition: value })),
+    setButtonSize: (value: ButtonSize) =>
+      setState((prev) => ({ ...prev, buttonSize: value })),
+    setButtonSizeScale: (value: number) =>
+      setState((prev) => ({ ...prev, buttonSizeScale: value })),
+    setGlassOpacity: (value: number) =>
+      setState((prev) => ({ ...prev, glassOpacity: value })),
+    setEnable3DDepth: (value: boolean) =>
+      setState((prev) => ({ ...prev, enable3DDepth: value })),
+    setEnableHoverFill: (value: boolean) =>
+      setState((prev) => ({ ...prev, enableHoverFill: value })),
+    setHoverFillColor: (value: string) =>
+      setState((prev) => ({ ...prev, hoverFillColor: value })),
+    setShowCard: (value: boolean) =>
+      setState((prev) => ({ ...prev, showCard: value })),
+    setCardTitle: (value: string) =>
+      setState((prev) => ({ ...prev, cardTitle: value })),
+    setCardSubtitle: (value: string) =>
+      setState((prev) => ({ ...prev, cardSubtitle: value })),
+    setProviderLabel: (provider: ProviderName, label: string) =>
+      setState((prev) => ({
+        ...prev,
+        providerLabels: { ...prev.providerLabels, [provider]: label },
+      })),
+    setContentAlignment: (value: Alignment) =>
+      setState((prev) => ({ ...prev, contentAlignment: value })),
+    setCardTitleColor: (value: string) =>
+      setState((prev) => ({ ...prev, cardTitleColor: value })),
+    setCardSubtitleColor: (value: string) =>
+      setState((prev) => ({ ...prev, cardSubtitleColor: value })),
+    setButtonTextColor: (value: string) =>
+      setState((prev) => ({ ...prev, buttonTextColor: value })),
+  }), []);
+
+  const resetToDefaults = useCallback(() => {
+    setState(DEFAULT_DEMO_STATE);
+  }, []);
+
+  return { state, config, setters, resetToDefaults };
+}

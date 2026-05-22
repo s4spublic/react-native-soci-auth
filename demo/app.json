@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "react-native-soci-auth-demo",
+    "slug": "react-native-soci-auth-demo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "react-native-soci-auth-demo",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
+  }
+}
