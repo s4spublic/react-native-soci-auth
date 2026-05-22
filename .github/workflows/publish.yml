@@ -1,14 +1,16 @@
 name: Publish to npm
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'package.json'   # only run when package.json changes (version bump)
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Release notes (leave blank to auto-generate from commits)'
+        required: false
+        type: string
 
 permissions:
-  contents: write        # needed to create GitHub releases
+  contents: write      # create GitHub releases
+  id-token: write      # npm OIDC trusted publishing (no NPM_TOKEN needed)
 
 jobs:
   publish:
@@ -17,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history needed for release note generation
+          fetch-depth: 0   # full history for release note generation
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -40,22 +42,28 @@ jobs:
             echo "Version $PACKAGE_VERSION is already published — skipping."
           else
             echo "should_publish=true" >> $GITHUB_OUTPUT
-            echo "New version $PACKAGE_VERSION (published: $PUBLISHED_VERSION) — will publish."
+            echo "New version $PACKAGE_VERSION (current: $PUBLISHED_VERSION) — will publish."
           fi
 
       - name: Publish to npm
         if: steps.version_check.outputs.should_publish == 'true'
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
 
       - name: Create GitHub Release
         if: steps.version_check.outputs.should_publish == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_NOTES: ${{ github.event.inputs.release_notes }}
         run: |
           VERSION="${{ steps.version_check.outputs.package_version }}"
-          gh release create "v${VERSION}" \
-            --title "v${VERSION}" \
-            --generate-notes \
-            --latest
+          if [ -n "$RELEASE_NOTES" ]; then
+            gh release create "v${VERSION}" \
+              --title "v${VERSION}" \
+              --notes "$RELEASE_NOTES" \
+              --latest
+          else
+            gh release create "v${VERSION}" \
+              --title "v${VERSION}" \
+              --generate-notes \
+              --latest
+          fi

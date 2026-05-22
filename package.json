@@ -1,6 +1,6 @@
 {
   "name": "react-native-soci-auth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Glassmorphism social login UI for React Native — Google, Apple, Facebook, GitHub OAuth buttons with dark mode, size scaling, and full TypeScript support",
   "main": "src/index.ts",
   "types": "src/index.ts",
