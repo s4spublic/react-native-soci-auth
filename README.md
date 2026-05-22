@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="#quick-start">Quick Start</a> · <a href="#configuration">Configuration</a> · <a href="#dynamic-theming">Dynamic Theming</a> · <a href="#oauth-provider-setup">Provider Setup</a>
+  <a href="https://react-native-soci-auth.vercel.app/" target="_blank"><strong>Live Demo</strong></a> · <a href="#quick-start">Quick Start</a> · <a href="#configuration">Configuration</a> · <a href="#dynamic-theming">Dynamic Theming</a> · <a href="#oauth-provider-setup">Provider Setup</a>
 </p>
 
 ---
@@ -154,6 +154,48 @@ interface OAuthError {
 ---
 
 ## OAuth Provider Setup
+
+### Keeping Client IDs Safe
+
+OAuth **client IDs** are public identifiers — they are safe to bundle in your app. OAuth **client secrets** are private and must never appear in a mobile app. react-native-soci-auth only ever asks for the client ID; the secret stays on your backend where it belongs.
+
+That said, avoid hardcoding client IDs directly in source code. Use environment variables so you can rotate them without a code change and keep them out of your git history.
+
+**In your Expo app:**
+
+```bash
+# .env.local (add this file to .gitignore)
+EXPO_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
+EXPO_PUBLIC_APPLE_CLIENT_ID=your-apple-services-id
+EXPO_PUBLIC_FACEBOOK_CLIENT_ID=your-facebook-app-id
+EXPO_PUBLIC_GITHUB_CLIENT_ID=your-github-client-id
+```
+
+```tsx
+// Read at build time — the EXPO_PUBLIC_ prefix makes them available in the bundle
+const config: SociAuth_Config = {
+  providers: [
+    {
+      name: 'google',
+      clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID!,
+      redirectUri,
+      scopes: ['openid', 'email', 'profile'],
+    },
+    {
+      name: 'github',
+      clientId: process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID!,
+      redirectUri,
+      scopes: ['read:user', 'user:email'],
+    },
+  ],
+};
+```
+
+**For CI/CD (Vercel, EAS Build, GitHub Actions):** add the same keys as environment variables in the platform's dashboard. They are injected at build time and never stored in your repo.
+
+> The authorization `code` returned by the library is a one-time-use token. Send it to your own backend, which exchanges it for access/refresh tokens using the client secret. The secret never touches the app.
+
+---
 
 ### Redirect URI by Platform
 

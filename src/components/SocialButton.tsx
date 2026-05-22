@@ -243,12 +243,13 @@ const SocialButtonInner: React.FC<SocialButtonProps> = ({
     paddingHorizontal: isIconOnly ? 0 : paddingH,
   }), [iconPosition, contentAlignment, height, isIconOnly, paddingH]);
 
+  const defaultLabelColor = resolvedTheme.mode === 'dark' ? '#ffffff' : resolvedTheme.colors.text;
   const labelStyle = useMemo<TextStyle>(() => ({
     fontSize,
     fontWeight: '500',
-    color: buttonTextColor ?? resolvedTheme.colors.text,
+    color: buttonTextColor ?? defaultLabelColor,
     lineHeight: fontSize * 1.2,
-  }), [fontSize, buttonTextColor, resolvedTheme.colors.text]);
+  }), [fontSize, buttonTextColor, defaultLabelColor]);
 
   // ── 3D tilt transform ─────────────────────────────────────────
   const tiltTransform = enable3DDepth
