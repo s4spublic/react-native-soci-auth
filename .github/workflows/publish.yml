@@ -7,12 +7,17 @@ on:
     paths:
       - 'package.json'   # only run when package.json changes (version bump)
 
+permissions:
+  contents: write        # needed to create GitHub releases
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for release note generation
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -43,3 +48,14 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        if: steps.version_check.outputs.should_publish == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version_check.outputs.package_version }}"
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --generate-notes \
+            --latest
