@@ -18,6 +18,8 @@
 
 Drop-in social login buttons for Google, Apple, Facebook, and GitHub in React Native. Glassmorphism styling, dark mode, size scaling, 3D depth effects, and full TypeScript support. Built for Expo and bare React Native.
 
+<p><strong><a href="https://react-native-soci-auth.vercel.app/" target="_blank" rel="noopener noreferrer">See it in action →</a></strong></p>
+
 > **Also available for React web:** [`react-soci-auth`](https://www.npmjs.com/package/react-soci-auth)
 
 ## Features
