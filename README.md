@@ -22,6 +22,15 @@ Drop-in social login buttons for Google, Apple, Facebook, and GitHub in React Na
 
 > **Also available for React web:** [`react-soci-auth`](https://www.npmjs.com/package/react-soci-auth)
 
+## Try the Demo
+
+The [live demo](https://react-native-soci-auth.vercel.app/) is a fully interactive playground:
+
+- **Preview** — see the component update in real time as you change settings
+- **Controls** — toggle providers, variants, themes, layout, effects, and colors
+- **Code** — copy the exact config snippet for your current settings
+- **Response** — sign in with Google (or any configured provider) and see the real OAuth response shape — provider name, authorization code, state, and raw params
+
 ## Features
 
 - 🔐 **OAuth 2.0** via `expo-web-browser` (in-app browser) with `Linking` fallback
