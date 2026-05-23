@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import * as WebBrowser from 'expo-web-browser';
 import { SociAuthProvider } from 'react-native-soci-auth';
+
+// Required for expo-web-browser OAuth on web: closes the popup when
+// the app loads at the redirect URI and passes the auth result back.
+WebBrowser.maybeCompleteAuthSession();
 import { useDemoState } from './hooks/useDemoState';
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewPanel } from './components/PreviewPanel';
